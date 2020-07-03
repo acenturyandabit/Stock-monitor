@@ -1,0 +1,22 @@
+{
+  "name": "stock-monitor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A stock monitor written in gatsbyjs.",
+  "author": "Steven Liu",
+  "keywords": [
+    "stocks"
+  ],
+  "scripts": {
+    "develop": "gatsby develop",
+    "start": "gatsby develop",
+    "build": "gatsby build",
+    "clean": "gatsby clean"
+  },
+  "license": "0BSD",
+  "dependencies": {
+    "gatsby": "^2.23.12",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  }
+}
