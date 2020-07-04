@@ -4,9 +4,9 @@ let path = require('path');
 
 
 
-function getAllPublic() {
+function getAllUnder(base) {
     let allPaths = [];
-    let stack = ["public"];
+    let stack = [base];
     while (stack.length) {
         let list = fs.readdirSync(stack[0]);
         for (let i of list) {
@@ -27,6 +27,11 @@ function getAllPublic() {
         console.log("no changes to commit, hope this looks right");
     }
     execSync("gatsby build");
+    // drag the files from public to transfer 
+    let publics = getAllUnder('public');
+    for (let i of publics) {
+        fs.renameSync('transfer/' + i, i.slice("public/".length));
+    }
     execSync("git checkout master");
     try {
         execSync("git merge develop");
@@ -34,10 +39,10 @@ function getAllPublic() {
         console.log("merge failed, please resolve.");
         return;
     }
-    // drag the files from public to outside
-    let publics = getAllPublic();
-    for (let i of publics) {
-        fs.renameSync(i, i.slice("public/".length));
+    // drag the files from transfer to outside
+    let transfers = getAllUnder('transfer');
+    for (let i of transfers) {
+        fs.renameSync(i, i.slice("transfer/".length));
     }
     execSync('git add .');
     execSync('git commit -m "auto-deploy"');
