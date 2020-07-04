@@ -1,36 +1,22 @@
-<p align="center">
-  <a href="https://www.gatsbyjs.org">
-    <img alt="Gatsby" src="https://www.gatsbyjs.org/monogram.svg" width="60" />
-  </a>
-</p>
-<h1 align="center">
-  Minimal starter for installing recipes
-</h1>
+# Stock monitor
+Get started: https://acenturyandabit.github.io/stock-monitor
 
-Note that this starter does not include any pages by default.
+## I'm looking to practice buying stocks!
+You've come to the right place! 
 
-This starter is meant as a minimal reproduction of a Gatsby project in order to facilitate recipe installation.
+This site is fantastic because:
+- There's no sign up and no committment. Ever.
+- Never give us any of your details: no credit card or ID required.
 
-## 🚀 Quick start
+Some caveats:
+- This site allows you to emulate buying stocks for the Australian Stock Exchange only.
+- Prices lag by at least 20 minutes and at most an hour, depending on site load.
 
-1.  **Create a Gatsby site.**
+For support:
+- No, I can't replace any lost data if you accidentally wipe your portfolio. Sorry :(
+- If you want to suggest a feature, pop an issue on github in the tabs above ^
+- Or, if you don't have a github account, you can email me directly at steeven.liu2@gmail.com
 
-    Use the Gatsby CLI to create a new site, specifying the minimal starter.
-
-    ```shell
-    # create a new Gatsby site using the minimal starter
-    gatsby new my-site https://github.com/gatsbyjs/gatsby-starter-minimal
-    ```
-
-2.  **Start developing.**
-
-    Navigate into your new site’s directory and start it up.
-
-    ```shell
-    cd my-site/
-    gatsby develop
-    ```
-
-3.  **Open the code and start customizing!**
-
-    Your site is now running at `http://localhost:8000`!
+## I want to help polish this product.
+- The todo list is as below:
+  - restyle everything
