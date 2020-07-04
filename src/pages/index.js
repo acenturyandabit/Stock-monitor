@@ -189,6 +189,7 @@ export default class Home extends React.Component {
     `}</script>
             </script>
             <h1>Stock monitor</h1>
+            <p>by acenturyandabit</p>
             <label>Brokerage: <input value={this.state.brokerage} onChange={(e) => this.setState({ brokerage: e.target.value })}></input></label>
             <div style={{ display: "flex" }} className={"mainContainer"}>
                 <div>
