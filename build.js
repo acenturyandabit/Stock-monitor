@@ -26,11 +26,12 @@ function getAllUnder(base) {
     } catch (err) {
         console.log("no changes to commit, hope this looks right");
     }
+    console.log("gatsby building...");
     execSync("gatsby build");
     // drag the files from public to transfer 
     let publics = getAllUnder('public');
     for (let i of publics) {
-        fs.renameSync('transfer/' + i, i.slice("public/".length));
+        fs.renameSync(i, 'transfer/' + i.slice("public/".length));
     }
     execSync("git checkout master");
     try {
