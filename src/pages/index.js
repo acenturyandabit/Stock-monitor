@@ -59,7 +59,7 @@ export default class Home extends React.Component {
         let queryObj = this.state.stocks.map(i => i.code);
         let newPrices = await new Promise((res) => {
             let xhr = new XMLHttpRequest();
-            xhr.open("GET", "http://172.105.176.108:8034/getPrices?codes=" + queryObj.join(","));
+            xhr.open("GET", "http://swarmcomp.usydrobotics.club:8034/getPrices?codes=" + queryObj.join(","));
             xhr.onreadystatechange = function () { // Call a function when the state changes.
                 if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
                     res(JSON.parse(xhr.responseText));
@@ -87,7 +87,7 @@ export default class Home extends React.Component {
         //first, validate that it is actually a stock
         let newPrices = await new Promise((res) => {
             let xhr = new XMLHttpRequest();
-            xhr.open("GET", "http://172.105.176.108:8034/getPrices?codes=" + this.state.actCode);
+            xhr.open("GET", "http://swarmcomp.usydrobotics.club:8034/getPrices?codes=" + this.state.actCode);
             xhr.onreadystatechange = function () { // Call a function when the state changes.
                 if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
                     res(JSON.parse(xhr.responseText));
@@ -133,7 +133,7 @@ export default class Home extends React.Component {
             let newCodes = ["TLS", "ASX", "ALL", "KMD", "BTH"];
             let newPrices = await new Promise((res) => {
                 let xhr = new XMLHttpRequest();
-                xhr.open("GET", "http://172.105.176.108:8034/getPrices?codes=" + newCodes.join(","));
+                xhr.open("GET", "http://swarmcomp.usydrobotics.club:8034/getPrices?codes=" + newCodes.join(","));
                 xhr.onreadystatechange = function () { // Call a function when the state changes.
                     if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
                         res(JSON.parse(xhr.responseText));
@@ -168,7 +168,7 @@ export default class Home extends React.Component {
     async checkCode() {
         let newPrices = await new Promise((res) => {
             let xhr = new XMLHttpRequest();
-            xhr.open("GET", "http://172.105.176.108:8034/getPrices?codes=" + this.state.actCode);
+            xhr.open("GET", "http://swarmcomp.usydrobotics.club:8034/getPrices?codes=" + this.state.actCode);
             xhr.onreadystatechange = function () { // Call a function when the state changes.
                 if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
                     res(JSON.parse(xhr.responseText));
