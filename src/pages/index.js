@@ -178,16 +178,14 @@ export default class Home extends React.Component {
     render() {
         return <div className={indexStyles.container}>
 
-            <script>
-                <script async src="https://www.googletagmanager.com/gtag/js?id=UA-171629673-1"></script>
-                <script>{`
+            <script async src="https://www.googletagmanager.com/gtag/js?id=UA-171629673-1"></script>
+            <script>{`
                     window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
   gtag('config', 'UA-171629673-1');
     `}</script>
-            </script>
             <h1>Stock monitor</h1>
             <p>by acenturyandabit <a href="https://github.com/acenturyandabit/stock-monitor">Learn more</a></p>
             <label>Brokerage: <input value={this.state.brokerage} onChange={(e) => this.setState({ brokerage: e.target.value })}></input></label>
