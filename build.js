@@ -38,6 +38,7 @@ function getAllUnder(base) {
     //nerf all old files
     try {
         let nerfs = JSON.parse(String(fs.readFileSync("nerflist.json")));
+        console.log(nerfs);
         for (let i of nerfs) {
             fs.unlinkSync(i);
         }
