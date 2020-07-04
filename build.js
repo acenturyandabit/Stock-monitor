@@ -35,6 +35,15 @@ function getAllUnder(base) {
         fs.renameSync(i, 'transfer/' + i.slice("public/".length));
     }
     execSync("git checkout master");
+    //nerf all old files
+    try {
+        let nerfs = JSON.parse(String(fs.readFileSync("nerflist.json")));
+        for (let i of nerfs) {
+            fs.unlinkSync(i);
+        }
+    } catch (e) {
+        console.log("nothing to delete");
+    }
     try {
         execSync("git merge develop");
     } catch (err) {
@@ -43,12 +52,16 @@ function getAllUnder(base) {
     }
     // drag the files from transfer to outside
     let transfers = getAllUnder('transfer');
+    let newNerfs = [];
     for (let i of transfers) {
         if (i.slice(0, i.lastIndexOf("/")).slice("transfer/".length).length > 0) {
             fs.mkdirSync(i.slice(0, i.lastIndexOf("/")).slice("transfer/".length), { recursive: true });
         }
         fs.renameSync(i, i.slice("transfer/".length));
+        newNerfs.push(i.slice("transfer/".length));
     }
+    //save files to nerf
+    fs.writeFileSync("nerfs.json", JSON.stringify(newNerfs));
     execSync('git add .');
     execSync('git commit -m "auto-deploy"');
     execSync('git push');
