@@ -27,7 +27,7 @@ function getAllUnder(base) {
         console.log("no changes to commit, hope this looks right");
     }
     console.log("gatsby building...");
-    execSync("gatsby build");
+    execSync("gatsby build --prefix-paths");
     // drag the files from public to transfer 
     let publics = getAllUnder('public');
     for (let i of publics) {
