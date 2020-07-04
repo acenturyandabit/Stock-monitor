@@ -64,7 +64,11 @@ function getAllUnder(base) {
     //save files to nerf
     fs.writeFileSync("nerfs.json", JSON.stringify(newNerfs));
     execSync('git add .');
-    execSync('git commit -m "auto-deploy"');
+    try{
+        execSync('git commit -m "auto-deploy"');
+    }catch (e){
+        console.log("nothing to deploy, hope this looks right");
+    }
     execSync('git push');
     execSync('git checkout develop');
 })();
