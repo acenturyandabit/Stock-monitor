@@ -1,5 +1,5 @@
 # Stock monitor
-Get started: https://acenturyandabit.github.io/stock-monitor
+Get started: http://swarmcomp.usydrobotics.club:8034/
 
 ## I'm looking to practice buying stocks!
 You've come to the right place! 
