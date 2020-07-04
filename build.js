@@ -44,7 +44,7 @@ function getAllUnder(base) {
     // drag the files from transfer to outside
     let transfers = getAllUnder('transfer');
     for (let i of transfers) {
-        fs.mkdirSync(i.slice(0, i.lastIndexOf("/")).slice("public/".length), { recursive: true });
+        fs.mkdirSync(i.slice(0, i.lastIndexOf("/")).slice("transfer/".length), { recursive: true });
         fs.renameSync(i, i.slice("transfer/".length));
     }
     execSync('git add .');
