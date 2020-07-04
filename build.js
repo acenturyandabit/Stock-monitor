@@ -31,6 +31,7 @@ function getAllUnder(base) {
     // drag the files from public to transfer 
     let publics = getAllUnder('public');
     for (let i of publics) {
+        fs.mkdirSync('transfer/' + i.slice(0, i.lastIndexOf("/")).slice("public/".length), { recursive: true });
         fs.renameSync(i, 'transfer/' + i.slice("public/".length));
     }
     execSync("git checkout master");
