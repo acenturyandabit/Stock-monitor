@@ -37,7 +37,7 @@ function getAllUnder(base) {
     execSync("git checkout master");
     //nerf all old files
     try {
-        let nerfs = JSON.parse(String(fs.readFileSync("nerflist.json")));
+        let nerfs = JSON.parse(String(fs.readFileSync("nerfs.json")));
         console.log(nerfs);
         for (let i of nerfs) {
             fs.unlinkSync(i);
