@@ -43,7 +43,7 @@ function getAllPublic() {
     execSync('git commit -m "auto-deploy"');
     execSync('git push');
     execSync('git checkout develop');
-});
+})();
 
 // switch to index build html
 // copy the index from the cache into index html
