@@ -44,7 +44,7 @@ function getAllUnder(base) {
     // drag the files from transfer to outside
     let transfers = getAllUnder('transfer');
     for (let i of transfers) {
-        if (i.lastIndexOf("/")>0){
+        if (i.slice(0, i.lastIndexOf("/")).slice("transfer/".length).length > 0) {
             fs.mkdirSync(i.slice(0, i.lastIndexOf("/")).slice("transfer/".length), { recursive: true });
         }
         fs.renameSync(i, i.slice("transfer/".length));
