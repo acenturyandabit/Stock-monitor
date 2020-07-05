@@ -29,7 +29,7 @@ export default class Home extends React.Component {
     }
     componentDidMount() {
         window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
+        function gtag() { window.dataLayer.push(arguments); }
         gtag('js', new Date());
 
         gtag('config', 'UA-171629673-1');
@@ -224,20 +224,22 @@ export default class Home extends React.Component {
                 </div>
                 <div>
                     <div>
-                        <h3>this.state.graphPrice ? "Price (percent change)" : "Value"</h3>
+                        <h3>{this.state.graphPrice ? "Price (percent change)" : "Value"}</h3>
                         <Chart style={{ height: "40vh" }} type="line" data={
                             {
-                                datasets: this.state.graphPrice ? JSON.parse(JSON.stringify(this.state.priceData)) : JSON.parse(JSON.stringify(this.state.valueData)),
+                                datasets: this.state.graphPrice ? JSON.parse(JSON.stringify(this.state.priceData)) : JSON.parse(JSON.stringify(this.state.valueData))
+                            }}
+                            options={{
                                 scales: {
                                     yAxes: [{
                                         ticks: {
                                             beginAtZero: false
                                         }
                                     }],
-                                    xAxes: [{ type: 'linear' }]
+                                    xAxes: [{ type: 'time' }]
                                 }
-                            }
-                        }></Chart>
+                            }}
+                        ></Chart>
                     </div>
                     <p>Show:
                      Price data <input type="radio" name="graphPV" checked={this.state.graphPrice} onChange={() => this.setState({ graphPrice: true })}></input>
