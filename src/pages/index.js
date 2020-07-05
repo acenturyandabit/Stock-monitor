@@ -29,9 +29,9 @@ export default class Home extends React.Component {
     }
     componentDidMount() {
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+        function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
-      
+
         gtag('config', 'UA-171629673-1');
 
 
@@ -224,9 +224,9 @@ export default class Home extends React.Component {
                 </div>
                 <div>
                     <div>
+                        <h3>this.state.graphPrice ? "Price (percent change)" : "Value"</h3>
                         <Chart style={{ height: "40vh" }} type="line" data={
                             {
-                                labels: [this.state.graphPrice ? "Price (percent change)" : "Value"],
                                 datasets: this.state.graphPrice ? JSON.parse(JSON.stringify(this.state.priceData)) : JSON.parse(JSON.stringify(this.state.valueData)),
                                 scales: {
                                     yAxes: [{
