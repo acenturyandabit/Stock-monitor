@@ -104,7 +104,9 @@ export default class Home extends React.Component {
                 i.valueData = i.stocks.map(s => ({ label: s.code, data: s.valueData.map(i => ({ x: i.x, y: i.y })), fill: false, spanGaps: true, borderColor: "#ff00ff" }));
                 i.totalsData = i.stocks.reduce((p, s) => {
                     s.valueData.forEach((i) => {
-                        p.data[i.x] = (p.data[i.x] || 0) + i.y;
+                        if (!p.data[i.x]) p.data[i.x] = { y: 0, n: 0 };
+                        p.data[i.x].y += i.y;
+                        p.data[i.x].n++;
                     })
                     return p;
                 }, {
@@ -114,7 +116,11 @@ export default class Home extends React.Component {
                     spanGaps: true,
                     borderColor: "#ff00ff"
                 });
-                i.totalsData.data = Object.entries(i.totalsData.data).sort((a, b) => a[0] - b[0]).map((i) => ({ x: Number(i[0]), y: i[1] }));
+                let totalAccounted = 0;
+                i.totalsData.data = Object.entries(i.totalsData.data).sort((a, b) => a[0] - b[0]).filter(i => {
+                    totalAccounted = Math.max(i[1].n, totalAccounted);
+                    return i[1].n == totalAccounted;
+                }).map((i) => ({ x: Number(i[0]), y: i[1].y }));
                 i.totalsData = [i.totalsData];
             })
             // summary is built in html
