@@ -32,6 +32,7 @@ export default class Home extends React.Component {
         this.resetAll = this.resetAll.bind(this);
         this.makeSample = this.makeSample.bind(this);
         this.makeNewPortfolio = this.makeNewPortfolio.bind(this);
+        this.deletePortfolio = this.deletePortfolio.bind(this);
     }
     componentDidMount() {
         window.dataLayer = window.dataLayer || [];
@@ -157,6 +158,14 @@ export default class Home extends React.Component {
             return state;
         });
     }
+    deletePortfolio(p, e) {
+        this.setState((state) => {
+            state.portfolios.splice(p, 1);
+            state.currentPortfolio = state.portfolios.length - 1;
+            return state;
+        });
+        e.stopPropagation();
+    }
     async makeSample() {
         await this.makeNewPortfolio();
         let newCodes = ["TLS", "ASX", "ALL", "KMD", "BTH"];
@@ -218,7 +227,9 @@ export default class Home extends React.Component {
             <p>by acenturyandabit <a href="https://github.com/acenturyandabit/stock-monitor">Learn more</a></p>
             <label>Brokerage: <input value={this.state.brokerage} onChange={(e) => this.setState({ brokerage: e.target.value })}></input></label>
             <div className="tabbars">{
-                this.state.portfolios.map((i, ind) => <span key={ind} style={ind == this.state.currentPortfolio ? { background: "purple", color: "white" } : {}} onClick={() => this.setState({ currentPortfolio: ind })}>Portfolio {ind + 1}</span>)
+                this.state.portfolios.map((i, ind) => <span key={ind} style={ind == this.state.currentPortfolio ? { background: "purple", color: "white" } : {}} onClick={() => this.setState({ currentPortfolio: ind })}>Portfolio {ind + 1}
+                    {this.state.portfolios.length > 1 ? <span onClick={(e) => this.deletePortfolio(ind, e)}>&times;</span> : ""}
+                </span>)
             }<span onClick={this.makeNewPortfolio}>New portfolio...</span></div>
             <div style={{ display: "flex" }} className={"mainContainer"}>
                 <div>
