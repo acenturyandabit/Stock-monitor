@@ -56,7 +56,7 @@ export default class Home extends React.Component {
             }
             this.setState({ portfolios: tryPortfolio });
         } catch (e) {
-            console.log("new user...");
+            console.log("load failed, please report");
         }
         brokerage = Number(localStorage.getItem("brokerage")) || 10;
         let currentPortfolio = Number(localStorage.getItem("currentPortfolio")) || 0;
