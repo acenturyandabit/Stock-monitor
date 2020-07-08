@@ -11,13 +11,18 @@ export default class Home extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            stocks: [],
-            isBuy: true,
-            brokerage: 10,
+            portfolios: [{
+                stocks: [],
+                priceData: [],
+                valueData: []
+            }],
+            currentPortfolio: 0,
             validatedCode: "",
             validatedPrice: "",
+            isBuy: true,
+            brokerage: 10,
             priceData: [],
-            valueData: []
+            valueData: [],
         };
         this.componentDidMount = this.componentDidMount.bind(this);
         this.enactTrade = this.enactTrade.bind(this);
@@ -26,6 +31,7 @@ export default class Home extends React.Component {
         this.checkCode = this.checkCode.bind(this);
         this.resetAll = this.resetAll.bind(this);
         this.makeSample = this.makeSample.bind(this);
+        this.makeNewPortfolio = this.makeNewPortfolio.bind(this);
     }
     componentDidMount() {
         window.dataLayer = window.dataLayer || [];
@@ -37,26 +43,43 @@ export default class Home extends React.Component {
 
         let tryStocks;
         let brokerage;
+        let tryPortfolio;
         try {
-            tryStocks = JSON.parse(localStorage.getItem("stocks")) || [];
-            brokerage = JSON.parse(localStorage.getItem("brokerage")) || 10;
-            this.setState({
-                stocks: tryStocks,
-                brokerage: brokerage
-            });
+            try {
+                tryPortfolio = JSON.parse(localStorage.getItem("portfolios")) || [{
+                    stocks: [],
+                    priceData: [],
+                    valueData: [],
+                }];
+            } catch (e) {
+                tryStocks = JSON.parse(localStorage.getItem("stocks")) || [];
+                tryPortfolio = [{ stocks: tryStocks, priceData: [], valueData: [] }];
+            }
+            this.setState({ portfolios: tryPortfolio });
         } catch (e) {
-            console.log("oh no!");
+            console.log("new user...");
         }
-        window.addEventListener("beforeunload", () => {
-            localStorage.setItem("stocks", JSON.stringify(this.state.stocks));
-            localStorage.setItem("brokerage", JSON.stringify(this.state.brokerage));
+        brokerage = Number(localStorage.getItem("brokerage")) || 10;
+        let currentPortfolio = Number(localStorage.getItem("currentPortfolio")) || 0;
+        this.setState((state) => {
+            state.brokerage = brokerage;
+            if (state.portfolios[currentPortfolio]) state.currentPortfolio = currentPortfolio;
+            return state;
         });
-        this.updatePrices();
+        window.addEventListener("beforeunload", () => {
+            localStorage.setItem("portfolios", JSON.stringify(this.state.portfolios));
+            localStorage.setItem("brokerage", this.state.brokerage);
+            localStorage.setItem("currentPortfolio", this.state.currentPortfolio);
+        });
+        setTimeout(this.updatePrices);//wait until setstate completed
         setInterval(this.updatePrices, 1000 * 60);
     }
     async updatePrices() {
         //send XHR and update prices
-        let queryObj = this.state.stocks.map(i => i.code);
+        let queryObj = this.state.portfolios.reduce((p, i) => {
+            p.push.apply(p, i.stocks.map(s => s.code));
+            return p;
+        }, []);
         let newPrices = await new Promise((res) => {
             let xhr = new XMLHttpRequest();
             xhr.open("GET", "http://swarmcomp.usydrobotics.club:8034/getPrices?codes=" + queryObj.join(","));
@@ -67,19 +90,19 @@ export default class Home extends React.Component {
             }
             xhr.send();
         });
+        queryObj = queryObj.reduce((p, i, ind) => { p[i] = newPrices[ind]; return p; }, {});
         this.setState((state) => {
-            let stockmap = state.stocks.map(i => i.code);
-            queryObj.map((i, ind) => {
-                let stateindex = stockmap.indexOf(i);
-                state.stocks[stateindex].price = newPrices[ind];
-                state.stocks[stateindex].priceData.push({ x: Date.now(), y: newPrices[ind] / (state.stocks[stateindex].purchasePrice / state.stocks[stateindex].amount) });
-                state.stocks[stateindex].valueData.push({ x: Date.now(), y: newPrices[ind] * state.stocks[stateindex].amount - state.stocks[stateindex].purchasePrice });
-            });
-            //compile pricing data
-            state.priceData = state.stocks.map(i => ({ label: i.code, data: i.priceData.map(i => ({ x: i.x, y: i.y })), fill: false, spanGaps: true, borderColor: "#ff0000" }));
-            state.valueData = state.stocks.map(i => ({ label: i.code, data: i.valueData.map(i => ({ x: i.x, y: i.y })), fill: false, spanGaps: true, borderColor: "#ff00ff" }));
-            //state.netValueData=state.stocks.map(i=>({label:i.code,data:i.netValueData}));
-            // add summary
+            state.portfolios.forEach(i => {
+                i.stocks.forEach(s => {
+                    s.price = queryObj[s.code];
+                    s.priceData.push({ x: Date.now(), y: queryObj[s.code] / (s.purchasePrice / s.amount) });
+                    s.valueData.push({ x: Date.now(), y: queryObj[s.code] * s.amount - s.purchasePrice });
+                })
+                //compile pricing data
+                i.priceData = i.stocks.map(s => ({ label: s.code, data: s.priceData.map(i => ({ x: i.x, y: i.y })), fill: false, spanGaps: true, borderColor: "#ff0000" }));
+                i.valueData = i.stocks.map(s => ({ label: s.code, data: s.valueData.map(i => ({ x: i.x, y: i.y })), fill: false, spanGaps: true, borderColor: "#ff00ff" }));
+            })
+            // summary is built in html
             return state;
         })
     }
@@ -108,18 +131,18 @@ export default class Home extends React.Component {
                 let theVolume = state.actAmount || Math.floor(state.actValue / thePrice);
                 //if (state.actMarketPrice && state.actValue && !confirm("Warning: Most platforms won't allow you to specify a total value and choose market price"))
                 //eh most beginners will probably do this, we'll put it in a footnote
-                let preExisting = state.stocks.map(i => i.code).indexOf(state.actCode);
+                let preExisting = state.portfolios[state.currentPortfolio].stocks.map(i => i.code).indexOf(state.actCode);
                 if (!state.isBuy) {
-                    if (state.stocks[preExisting].amount < theVolume && !window.confirm("Warning: you are trying to sell more stock than you own - this is not allowed by most major trading firms. Proceed?")) return;
+                    if (state.portfolios[state.currentPortfolio].stocks[preExisting].amount < theVolume && !window.confirm("Warning: you are trying to sell more stock than you own - this is not allowed by most major trading firms. Proceed?")) return;
                     theVolume = -theVolume;
                 }
                 //if (state.actMarketPrice && state.actValue && !confirm("Warning: Most platforms won't allow you to specify a total value and choose market price"))
                 if (preExisting != -1) {
-                    state.stocks[preExisting].price = newPrices[0];
-                    state.stocks[preExisting].amount = Number(state.stocks[preExisting].amount) + Number(theVolume);
-                    state.stocks[preExisting].purchasePrice = Number(state.stocks[preExisting].purchasePrice) + thePrice * theVolume + Number(state.brokerage);
+                    state.portfolios[state.currentPortfolio].stocks[preExisting].price = newPrices[0];
+                    state.portfolios[state.currentPortfolio].stocks[preExisting].amount = Number(state.portfolios[state.currentPortfolio].stocks[preExisting].amount) + Number(theVolume);
+                    state.portfolios[state.currentPortfolio].stocks[preExisting].purchasePrice = Number(state.portfolios[state.currentPortfolio].stocks[preExisting].purchasePrice) + thePrice * theVolume + Number(state.brokerage);
                 } else {
-                    state.stocks.push({ code: state.actCode, price: newPrices[0], amount: theVolume, purchasePrice: thePrice * theVolume + Number(state.brokerage), priceData: [], valueData: [] });
+                    state.portfolios[state.currentPortfolio].stocks.push({ code: state.actCode, price: newPrices[0], amount: theVolume, purchasePrice: thePrice * theVolume + Number(state.brokerage), priceData: [], valueData: [] });
                 }
                 setTimeout(this.updatePrices, 100);
                 return state;
@@ -128,38 +151,44 @@ export default class Home extends React.Component {
             alert(`${this.state.actCode} is not a valid stock code.`)
         }
     }
+    makeNewPortfolio() {
+        this.setState((state) => {
+            state.portfolios.push({ stocks: [], priceData: [], valueData: [] });
+            state.currentPortfolio = state.portfolios.length - 1;
+            return state;
+        });
+    }
     async makeSample() {
-        if (window.confirm("Wipe all data? This operation cannot be reversed!")) {
-            let newCodes = ["TLS", "ASX", "ALL", "KMD", "BTH"];
-            let newPrices = await new Promise((res) => {
-                let xhr = new XMLHttpRequest();
-                xhr.open("GET", "http://swarmcomp.usydrobotics.club:8034/getPrices?codes=" + newCodes.join(","));
-                xhr.onreadystatechange = function () { // Call a function when the state changes.
-                    if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-                        res(JSON.parse(xhr.responseText));
-                    }
+        await this.makeNewPortfolio();
+        let newCodes = ["TLS", "ASX", "ALL", "KMD", "BTH"];
+        let newPrices = await new Promise((res) => {
+            let xhr = new XMLHttpRequest();
+            xhr.open("GET", "http://swarmcomp.usydrobotics.club:8034/getPrices?codes=" + newCodes.join(","));
+            xhr.onreadystatechange = function () { // Call a function when the state changes.
+                if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                    res(JSON.parse(xhr.responseText));
                 }
-                xhr.send();
-            });
-            this.setState(state => {
-                state.stocks = newCodes.map((i, ind) => ({
-                    code: i,
-                    price: newPrices[ind],
-                    amount: 100,
-                    purchasePrice: newPrices[ind] * 100 - Math.random() * 100,
-                    priceData: [],
-                    valueData: []
-                }));
-                state.priceData = [];
-                state.valueData = [];
-                setTimeout(this.updatePrices, 100);
-                return state;
-            })
-        }
+            }
+            xhr.send();
+        });
+        this.setState(state => {
+            state.portfolios[state.currentPortfolio].stocks = newCodes.map((i, ind) => ({
+                code: i,
+                price: newPrices[ind],
+                amount: 100,
+                purchasePrice: newPrices[ind] * 100 - Math.random() * 100,
+                priceData: [],
+                valueData: []
+            }));
+            state.priceData = [];
+            state.valueData = [];
+            setTimeout(this.updatePrices, 100);
+            return state;
+        })
     }
     resetAll() {
         if (window.confirm("Wipe all data? This operation cannot be reversed!")) this.setState(state => {
-            state.stocks = [];
+            state.portfolios[state.currentPortfolio].stocks = [];
             state.priceData = [];
             state.valueData = [];
             return state;
@@ -189,6 +218,9 @@ export default class Home extends React.Component {
             <h1>Stock monitor</h1>
             <p>by acenturyandabit <a href="https://github.com/acenturyandabit/stock-monitor">Learn more</a></p>
             <label>Brokerage: <input value={this.state.brokerage} onChange={(e) => this.setState({ brokerage: e.target.value })}></input></label>
+            <div className="tabbars">{
+                this.state.portfolios.map((i, ind) => <span key={ind} style={ind == this.state.currentPortfolio ? { background: "purple", color: "white" } : {}} onClick={() => this.setState({ currentPortfolio: ind })}>Portfolio {ind + 1}</span>)
+            }<span onClick={this.makeNewPortfolio}>New portfolio...</span></div>
             <div style={{ display: "flex" }} className={"mainContainer"}>
                 <div>
                     <table>
@@ -202,7 +234,7 @@ export default class Home extends React.Component {
                                 <th>Net profit ($)</th>
                             </tr>
                             {
-                                this.state.stocks.map(i => <tr key={i.code}>
+                                this.state.portfolios[this.state.currentPortfolio].stocks.map(i => <tr key={i.code}>
                                     <td>{i.code}</td>
                                     <td>{i.price}</td>
                                     <td>{i.amount}</td>
@@ -215,9 +247,9 @@ export default class Home extends React.Component {
                                 <th>Total</th>
                                 <th> </th>
                                 <th> </th>
-                                <th> {dollarRound(this.state.stocks.reduce((p, i) => p + i.price * i.amount, 0))}</th>
-                                <th> {dollarRound(this.state.stocks.reduce((p, i) => p + i.purchasePrice, 0))}</th>
-                                <th> {dollarRound(this.state.stocks.reduce((p, i) => p + i.price * i.amount - i.purchasePrice, 0))}</th>
+                                <th> {dollarRound(this.state.portfolios[this.state.currentPortfolio].stocks.reduce((p, i) => p + i.price * i.amount, 0))}</th>
+                                <th> {dollarRound(this.state.portfolios[this.state.currentPortfolio].stocks.reduce((p, i) => p + i.purchasePrice, 0))}</th>
+                                <th> {dollarRound(this.state.portfolios[this.state.currentPortfolio].stocks.reduce((p, i) => p + i.price * i.amount - i.purchasePrice, 0))}</th>
                             </tr>
                         </tbody>
                     </table>
@@ -227,7 +259,7 @@ export default class Home extends React.Component {
                         <h3>{this.state.graphPrice ? "Price (percent change)" : "Value"}</h3>
                         <Chart style={{ height: "40vh" }} type="line" data={
                             {
-                                datasets: this.state.graphPrice ? JSON.parse(JSON.stringify(this.state.priceData)) : JSON.parse(JSON.stringify(this.state.valueData))
+                                datasets: this.state.graphPrice ? JSON.parse(JSON.stringify(this.state.portfolios[this.state.currentPortfolio].priceData)) : JSON.parse(JSON.stringify(this.state.portfolios[this.state.currentPortfolio].valueData))
                             }}
                             options={{
                                 scales: {
