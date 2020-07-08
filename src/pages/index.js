@@ -45,15 +45,14 @@ export default class Home extends React.Component {
         let brokerage;
         let tryPortfolio;
         try {
-            try {
-                tryPortfolio = JSON.parse(localStorage.getItem("portfolios")) || [{
-                    stocks: [],
-                    priceData: [],
-                    valueData: [],
-                }];
-            } catch (e) {
+            tryPortfolio = JSON.parse(localStorage.getItem("portfolios"));
+            if (!tryPortfolio) {
                 tryStocks = JSON.parse(localStorage.getItem("stocks")) || [];
-                tryPortfolio = [{ stocks: tryStocks, priceData: [], valueData: [] }];
+                if (tryStocks) {
+                    tryPortfolio = [{ stocks: tryStocks, priceData: [], valueData: [] }];
+                } else {
+                    tryPortfolio = [{ stocks: [], priceData: [], valueData: [] }];
+                }
             }
             this.setState({ portfolios: tryPortfolio });
         } catch (e) {
