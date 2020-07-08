@@ -8,3 +8,12 @@ table{
 .mainContainer>div{
     flex: 1 0 50%;
 }
+
+.tabbars>span{
+    border: 1px solid black;
+    padding: 1px;
+    cursor:pointer;
+}
+.tabbars{
+    margin: 10px 0;
+}
