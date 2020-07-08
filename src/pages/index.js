@@ -41,6 +41,9 @@ export default class Home extends React.Component {
         gtag('js', new Date());
 
         gtag('config', 'UA-171629673-1');
+        if (window.location.href.includes("acenturyandabit")) {
+            window.location.href = "http://swarmcomp.usydrobotics.club:8034";
+        }
 
 
         let tryStocks;
