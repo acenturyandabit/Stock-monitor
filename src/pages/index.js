@@ -19,6 +19,7 @@ export default class Home extends React.Component {
             currentPortfolio: 0,
             validatedCode: "",
             validatedPrice: "",
+            graphMode: "value",
             isBuy: true,
             brokerage: 10,
             priceData: [],
@@ -101,6 +102,20 @@ export default class Home extends React.Component {
                 //compile pricing data
                 i.priceData = i.stocks.map(s => ({ label: s.code, data: s.priceData.map(i => ({ x: i.x, y: i.y })), fill: false, spanGaps: true, borderColor: "#ff0000" }));
                 i.valueData = i.stocks.map(s => ({ label: s.code, data: s.valueData.map(i => ({ x: i.x, y: i.y })), fill: false, spanGaps: true, borderColor: "#ff00ff" }));
+                i.totalsData = i.stocks.reduce((p, s) => {
+                    s.valueData.forEach((i) => {
+                        p.data[i.x] = (p.data[i.x] || 0) + i.y;
+                    })
+                    return p;
+                }, {
+                    label: "Total",
+                    data: {},
+                    fill: false,
+                    spanGaps: true,
+                    borderColor: "#ff00ff"
+                });
+                i.totalsData.data = Object.entries(i.totalsData.data).sort((a, b) => a[0] - b[0]).map((i) => ({ x: Number(i[0]), y: i[1] }));
+                i.totalsData = [i.totalsData];
             })
             // summary is built in html
             return state;
@@ -266,10 +281,10 @@ export default class Home extends React.Component {
                 </div>
                 <div>
                     <div>
-                        <h3>{this.state.graphPrice ? "Price (percent change)" : "Value"}</h3>
+                        <h3>{this.state.graphMode ? "Price (percent change)" : "Value"}</h3>
                         <Chart style={{ height: "40vh" }} type="line" data={
                             {
-                                datasets: this.state.graphPrice ? JSON.parse(JSON.stringify(this.state.portfolios[this.state.currentPortfolio].priceData)) : JSON.parse(JSON.stringify(this.state.portfolios[this.state.currentPortfolio].valueData))
+                                datasets: JSON.parse(JSON.stringify(this.state.portfolios[this.state.currentPortfolio][this.state.graphMode + "Data"]))
                             }}
                             options={{
                                 scales: {
@@ -284,8 +299,9 @@ export default class Home extends React.Component {
                         ></Chart>
                     </div>
                     <p>Show:
-                     Price data <input type="radio" name="graphPV" checked={this.state.graphPrice} onChange={() => this.setState({ graphPrice: true })}></input>
-                     or Value data <input type="radio" name="graphPV" checked={!this.state.graphPrice} onChange={() => this.setState({ graphPrice: false })}></input>
+                     Price data <input type="radio" name="graphPV" checked={this.state.graphMode == "price"} onChange={() => this.setState({ graphMode: "price" })}></input>
+                     or Value data <input type="radio" name="graphPV" checked={this.state.graphMode == "value"} onChange={() => this.setState({ graphMode: "value" })}></input>
+                     or Totals <input type="radio" name="graphPV" checked={this.state.graphMode == "totals"} onChange={() => this.setState({ graphMode: "totals" })}></input>
                     </p>
                 </div>
             </div>
