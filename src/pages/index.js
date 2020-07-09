@@ -34,6 +34,7 @@ export default class Home extends React.Component {
         this.makeSample = this.makeSample.bind(this);
         this.makeNewPortfolio = this.makeNewPortfolio.bind(this);
         this.deletePortfolio = this.deletePortfolio.bind(this);
+        this.clonePortfolio = this.clonePortfolio.bind(this);
     }
     componentDidMount() {
         window.dataLayer = window.dataLayer || [];
@@ -178,6 +179,13 @@ export default class Home extends React.Component {
     makeNewPortfolio() {
         this.setState((state) => {
             state.portfolios.push({ stocks: [], priceData: [], valueData: [] });
+            state.currentPortfolio = state.portfolios.length - 1;
+            return state;
+        });
+    }
+    clonePortfolio() {
+        this.setState((state) => {
+            state.portfolios.push(JSON.parse(JSON.stringify(state.portfolios[state.currentPortfolio])));
             state.currentPortfolio = state.portfolios.length - 1;
             return state;
         });
@@ -342,6 +350,7 @@ export default class Home extends React.Component {
                 <button onClick={this.resetAll}>Reset Portfolio</button>
                 <button onClick={this.makeSample}>Sample Portfolio</button>
                 <button onClick={this.updatePrices}>Update Now</button>
+                <button onClick={this.clonePortfolio}>Clone Portfolio</button>
             </div>
         </div >
     }
