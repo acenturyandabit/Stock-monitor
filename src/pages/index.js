@@ -21,6 +21,7 @@ export default class Home extends React.Component {
             validatedPrice: "",
             graphMode: "value",
             isBuy: true,
+            actMarketPrice: true,
             brokerage: 10,
             priceData: [],
             valueData: [],
@@ -132,7 +133,16 @@ export default class Home extends React.Component {
         })
     }
     async enactTrade() {
-        //first, validate that it is actually a stock
+        //input state validation
+        if (!(Number(this.state.actPrice) || this.state.actMarketPrice)) {
+            alert("Please set a price.");
+            return;
+        } else if (Number(this.state.actValue) || Number(this.state.actAmount)) {
+            alert("Please pick a valid quantity.");
+            return;
+        }
+
+        //next, validate that it is actually a stock
         let newPrices = await new Promise((res) => {
             let xhr = new XMLHttpRequest();
             xhr.open("GET", "http://swarmcomp.usydrobotics.club:8034/getPrices?codes=" + this.state.actCode);
@@ -144,6 +154,8 @@ export default class Home extends React.Component {
             xhr.send();
         });
         if (newPrices[0] > 0) {
+
+
             //further validation, if:
             //buying below market
             //selling above market
