@@ -61,12 +61,21 @@ export default class Home extends React.Component {
                     tryPortfolio = [{ stocks: [], priceData: [], valueData: [] }];
                 }
             }
+            //clean out toxic entries from portfolio
+            for (let p of tryPortfolio) {
+                for (let s of p.stocks) {
+                    let poisoned = s.priceData.map((i, ind) => [i, ind]).filter(i => i[0].y < 0).map(i => i[1]);
+                    s.priceData = s.priceData.filter((i, ind) => poisoned.indexOf(ind) == -1);
+                    s.valueData = s.valueData.filter((i, ind) => poisoned.indexOf(ind) == -1);
+                }
+            }
             this.setState({ portfolios: tryPortfolio });
         } catch (e) {
             console.log("load failed, please report");
         }
         brokerage = Number(localStorage.getItem("brokerage")) || 10;
         let currentPortfolio = Number(localStorage.getItem("currentPortfolio")) || 0;
+
         this.setState((state) => {
             state.brokerage = brokerage;
             if (state.portfolios[currentPortfolio]) state.currentPortfolio = currentPortfolio;
@@ -100,9 +109,11 @@ export default class Home extends React.Component {
         this.setState((state) => {
             state.portfolios.forEach(i => {
                 i.stocks.forEach(s => {
-                    s.price = queryObj[s.code];
-                    s.priceData.push({ x: Date.now(), y: queryObj[s.code] / (s.purchasePrice / s.amount) });
-                    s.valueData.push({ x: Date.now(), y: queryObj[s.code] * s.amount - s.purchasePrice });
+                    if (queryObj[s.code] > 0) {
+                        s.price = queryObj[s.code];
+                        s.priceData.push({ x: Date.now(), y: queryObj[s.code] / (s.purchasePrice / s.amount) });
+                        s.valueData.push({ x: Date.now(), y: queryObj[s.code] * s.amount - s.purchasePrice });
+                    }
                 })
                 //compile pricing data
                 i.priceData = i.stocks.map(s => ({ label: s.code, data: s.priceData.map(i => ({ x: i.x, y: i.y })), fill: false, spanGaps: true, borderColor: "#ff0000" }));
