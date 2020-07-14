@@ -148,7 +148,7 @@ export default class Home extends React.Component {
         if (!(Number(this.state.actPrice) || this.state.actMarketPrice)) {
             alert("Please set a price.");
             return;
-        } else if (Number(this.state.actValue) || Number(this.state.actAmount)) {
+        } else if (!(Number(this.state.actValue) || Number(this.state.actAmount))) {
             alert("Please pick a valid quantity.");
             return;
         }
